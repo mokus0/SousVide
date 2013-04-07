@@ -41,9 +41,8 @@ void loop() {
 }
 
 void process_serial_input() {
-    if (Serial.available()) {
+    while (Serial.available()) {
         char c = Serial.read(); 
-        Serial.flush(); 
         
         switch(c) {
             case '0':
@@ -54,6 +53,14 @@ void process_serial_input() {
                 break;
             case '2':
                 set_pid_mode(TUNING);
+                break;
+            case '+':
+            case '=':
+                set_pid_setpoint(get_pid_setpoint() + 0.5);
+                break;
+            case '-':
+            case '_':
+                set_pid_setpoint(get_pid_setpoint() - 0.5);
                 break;
         }
     }
@@ -80,7 +87,7 @@ void print_status(long now, double heater_level) {
     Serial.print('\t');
     Serial.print(probe_temp_f(blk_probe));
     Serial.print('\t');
-    Serial.print(heater_level);
+    Serial.print(heater_level, 4);
     
     Serial.println();
 }
