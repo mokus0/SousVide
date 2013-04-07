@@ -7,13 +7,17 @@ void begin_tuning();
 void end_tuning();
 
 // 1st tuning run:
-double kp=17.63,ki=0.15,kd=0.00;
+//double kp=17.63,ki=0.15,kd=0.00;
 // 2nd tuning run:
 //double kp=5.67, ki=0.07, kd=0.00;
 // 3rd run (undamped inputs):
 //double kp = 8.94,
 //       ki = 0.16,
 //       kd = 0.00;
+
+double  kp = 35.25,
+        ki = 0.63,
+        kd = 0.00;
 
 // TODO: find out if there's any reason not to use, say, 1e6 here
 const float pid_range = 1023;
