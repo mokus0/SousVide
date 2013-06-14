@@ -1,5 +1,3 @@
-#include "SousVide.h"
-
 #include "Controller.h"
 #include "Probes.h"
 #include "Relay.h"
