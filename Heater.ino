@@ -16,5 +16,6 @@ void set_heater(float val) {
 
 void tick_heater(long now) {
     bool on = tick_relay(&heater, now);
-    analogWrite(heater_pin, on ? 2 : 0);
+//    analogWrite(heater_pin, on ? 2 : 0);
+    digitalWrite(heater_pin, on ? HIGH : LOW);
 }

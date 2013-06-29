@@ -4,6 +4,7 @@
 #include "Temperature.h"
 #include <math.h>
 
+// structure and functions for working with NTC thermistors
 struct probe_t {
     const int pin;
     const float decay;
