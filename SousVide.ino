@@ -2,15 +2,41 @@
 #include "Temperature.h"
 #include "Probes.h"
 #include "Relay.h"
+#include "Logging.h"
 #include <EEPROM.h>
 
 void process_serial_input();
-void print_status(long now, double heater_level);
 
 const float default_target_temp_f = 140;
 
 unsigned long print_interval = 1000;
 unsigned long next_printout;
+
+void print_status(Stream &dest, long now, double heater_level, double temp_c, double temp_f) {
+    float kp, ki, kd;
+    get_pid_tuning(&kp, &ki, &kd);
+    
+    dest.print(now);
+    dest.print('\t');
+    dest.print(get_pid_mode());
+    dest.print('\t');
+    dest.print(kp);
+    dest.print('\t');
+    dest.print(ki);
+    dest.print('\t');
+    dest.print(kd);
+    
+    dest.print('\t');
+    dest.print(get_pid_setpoint());
+    dest.print('\t');
+    dest.print(temp_c);
+    dest.print('\t');
+    dest.print(temp_f);
+    dest.print('\t');
+    dest.print(heater_level, 4);
+    
+    dest.println();
+}
 
 float EEPROM_readFloat(int x) {
     union {
@@ -52,6 +78,19 @@ void setup() {
     
     Serial.begin(9600);
     
+    if (init_logging()) {
+        Serial.println("Initialized logging successfully");
+        
+        if (log_file) {
+            log_file.println("=== reboot ===");
+            log_file.flush();
+        } else {
+            Serial.println("Just kidding... opened the card but not the file");
+        }
+    } else {
+        Serial.println("Failed to initialize logging");
+    }
+    
     next_printout = millis() + print_interval;
 }
 
@@ -67,7 +106,11 @@ void loop() {
     
     if (now >= next_printout) {
         process_serial_input();
-        print_status(now, heater_level, temp_c, temp_f);
+        if (Serial) print_status(Serial, now, heater_level, temp_c, temp_f);
+        if (log_file) {
+            print_status(log_file, now, heater_level, temp_c, temp_f);
+            log_file.flush();
+        }
         
         next_printout += print_interval;
     }
@@ -101,30 +144,4 @@ void process_serial_input() {
                 break;
         }
     }
-}
-
-void print_status(long now, double heater_level, double temp_c, double temp_f) {
-    float kp, ki, kd;
-    get_pid_tuning(&kp, &ki, &kd);
-    
-    Serial.print(now);
-    Serial.print('\t');
-    Serial.print(get_pid_mode());
-    Serial.print('\t');
-    Serial.print(kp);
-    Serial.print('\t');
-    Serial.print(ki);
-    Serial.print('\t');
-    Serial.print(kd);
-    
-    Serial.print('\t');
-    Serial.print(get_pid_setpoint());
-    Serial.print('\t');
-    Serial.print(temp_c);
-    Serial.print('\t');
-    Serial.print(temp_f);
-    Serial.print('\t');
-    Serial.print(heater_level, 4);
-    
-    Serial.println();
 }
